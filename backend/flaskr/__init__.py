@@ -16,18 +16,35 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
+  cors = CORS(app)
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
+
+  @app.after_request
+  def set_headers(response):
+    response.headers.add('Access-Control-Allow-Headers','Content-Type,authorization,True')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS')
+    return response
 
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
-
+  @app.route('/categories')
+  def get_categories():
+    data = []
+    categories = Category.query.all()
+    for category in categories:
+      category = category.format()
+      data.append(category)
+    print(data)
+    return jsonify({
+      'success' : True,
+      'categories' : data
+    })
   '''
   @TODO: 
   Create an endpoint to handle GET requests for questions, 
@@ -41,6 +58,21 @@ def create_app(test_config=None):
   Clicking on the page numbers should update the questions. 
   '''
 
+  @app.route('/questions')
+  def get_questions():
+    all_questions = Question.query.all()
+    all_categories = Category.query.all()
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+    format_questions = [question.format() for question in all_questions]
+    format_categories = [category.format()['type'] for category in all_categories]
+    return jsonify({
+      'questions': format_questions[start:end],
+      'total_questions': len(all_questions),
+      'categories': format_categories,
+      'current_category': format_categories[0]
+    })
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
