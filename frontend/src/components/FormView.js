@@ -10,14 +10,14 @@ class FormView extends Component {
       question: "",
       answer: "",
       difficulty: 1,
-      category: 1,
+      category: "",
       categories: {}
     }
   }
 
   componentDidMount(){
     $.ajax({
-      url: `/categories`, //TODO: update request URL
+      url: `/add`, //TODO: update request URL
       type: "GET",
       success: (result) => {
         this.setState({ categories: result.categories })
@@ -34,7 +34,7 @@ class FormView extends Component {
   submitQuestion = (event) => {
     event.preventDefault();
     $.ajax({
-      url: '/questions', //TODO: update request URL
+      url: '/add', //TODO: update request URL
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -42,7 +42,7 @@ class FormView extends Component {
         question: this.state.question,
         answer: this.state.answer,
         difficulty: this.state.difficulty,
-        category: this.state.category
+        category: +this.state.category + 1
       }),
       xhrFields: {
         withCredentials: true
@@ -53,6 +53,7 @@ class FormView extends Component {
         return;
       },
       error: (error) => {
+        console.log('Error', error)
         alert('Unable to add question. Please try your request again')
         return;
       }
@@ -60,6 +61,7 @@ class FormView extends Component {
   }
 
   handleChange = (event) => {
+    console.log(`Field name ${event.target.name} with value ${event.target.value}`)
     this.setState({[event.target.name]: event.target.value})
   }
 
@@ -91,7 +93,7 @@ class FormView extends Component {
             <select name="category" onChange={this.handleChange}>
               {Object.keys(this.state.categories).map(id => {
                   return (
-                    <option key={id} value={id}>{this.state.categories[id]}</option>
+                    <option key={id} value={id}>{this.state.categories[id].type}</option>
                   )
                 })}
             </select>

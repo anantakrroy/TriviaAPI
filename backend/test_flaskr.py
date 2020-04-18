@@ -43,13 +43,23 @@ class TriviaTestCase(unittest.TestCase):
 
     # Test questions
     def test_get_questions(self):
-        res = self.client.get('/questions?page=1')
+        res = self.client.get('/questions')
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['categories'])
         self.assertTrue(data['questions'])
         self.assertEqual(data['total_questions'], 19)
+
+    # Test invalid page number
+    def test_404_get_questions_invalid_page(self):
+        res = self.client.get('/questions?page=100')
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertEqual(data['error'], 404)
 
     # Test delete question
     

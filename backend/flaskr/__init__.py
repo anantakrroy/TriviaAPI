@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, abort, jsonify, redirect, url_for
+from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
@@ -7,6 +7,16 @@ import random
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
+
+def paginate_questions(request, selection):
+  page = request.args.get('page', 1, type=int)
+  start = (page - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
+
+  questions = [question.format() for question in selection]
+  question_current = questions[start:end]
+
+  return question_current
 
 def create_app(test_config=None):
   # create and configure the app
@@ -40,7 +50,6 @@ def create_app(test_config=None):
     for category in categories:
       category = category.format()
       data.append(category)
-    print(data)
     return jsonify({
       'categories' : data
     })
@@ -60,18 +69,18 @@ def create_app(test_config=None):
   @app.route('/questions')
   def get_questions():
     all_questions = Question.query.all()
+    format_questions = paginate_questions(request, all_questions)
     all_categories = Category.query.all()
-    page = request.args.get('page', 1, type=int)
-    start = (page - 1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
-    format_questions = [question.format() for question in all_questions]
     format_categories = [category.format() for category in all_categories]
 
+    if len(format_questions) == 0:
+      abort(404)
+
     return jsonify({
-      'questions': format_questions[start:end],
+      'questions': format_questions,
       'total_questions': len(all_questions),
       'categories': format_categories,
-      'current_category': None
+      'current_category': None,
     })
   '''
   @TODO: 
@@ -80,7 +89,7 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
-  @app.route('/questions/<question_id>', methods=['DELETE'])
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     question_to_delete = Question.query.filter_by(id=question_id).first()
     question_to_delete.delete()
@@ -99,7 +108,33 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route('/add', methods=['GET','POST'])
+  def add_new_question():
+    all_categories = Category.query.all()
+    format_categories = [category.format() for category in all_categories]
 
+    # GET request
+    if request.method == 'GET':
+      if len(format_categories):  
+        return jsonify({
+        'categories' : format_categories
+        })
+      else:
+        abort(422) 
+    
+    # POST request
+    if request.method == 'POST':
+      question = request.get_json().get('question')
+      answer = request.get_json().get('answer')
+      difficulty = request.get_json().get('difficulty')
+      category = request.get_json().get('category')
+      new_quiz_entry = Question(question=question, answer=answer,difficulty=difficulty,category=category)
+      Question.insert(new_quiz_entry)
+      return jsonify({
+        'success' : True,
+        'message' : 'Question added successfully',
+      })
+    
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -110,7 +145,16 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-
+  @app.route('/questions', methods=['POST'])
+  def search_question():
+    search_query = request.get_json().get('searchTerm')
+    filtered_ques = Question.query.filter(Question.question.ilike(f'%{search_query}%')).all()
+    questions = [question.format() for question in filtered_ques]
+    return jsonify({
+      'questions' : questions,
+      'totalQuestions' : len(questions),
+      'currentCategory' : None
+    })
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -119,7 +163,17 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-
+  @app.route('/categories/<int:category_id>/questions')
+  def questions_by_category(category_id):
+    question_category = category_id + 1
+    curr_category = Category.query.filter_by(id=question_category).first().type
+    questions_of_category = Question.query.filter_by(category=question_category).all()
+    questions = [question.format() for question in questions_of_category]
+    return jsonify({
+      'questions' : questions,
+      'totalQuestions' : len(questions),
+      'currentCategory' : curr_category
+    })
 
   '''
   @TODO: 
@@ -138,6 +192,21 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(404)
+  def not_found_404(error):
+    return jsonify({
+      'success' : False,
+      'error' : 404,
+      'message' : 'Page not found'
+    }), 404
+
+  @app.errorhandler(422)
+  def not_processable(error):
+    return jsonify({
+        'error' : 422,
+        'message' : 'Not processable',
+        'success' : False
+        }), 422
   
   return app
 
