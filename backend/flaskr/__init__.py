@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
@@ -42,7 +42,6 @@ def create_app(test_config=None):
       data.append(category)
     print(data)
     return jsonify({
-      'success' : True,
       'categories' : data
     })
   '''
@@ -66,12 +65,13 @@ def create_app(test_config=None):
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
     format_questions = [question.format() for question in all_questions]
-    format_categories = [category.format()['type'] for category in all_categories]
+    format_categories = [category.format() for category in all_categories]
+
     return jsonify({
       'questions': format_questions[start:end],
       'total_questions': len(all_questions),
       'categories': format_categories,
-      'current_category': format_categories[0]
+      'current_category': None
     })
   '''
   @TODO: 
@@ -80,6 +80,14 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route('/questions/<question_id>', methods=['DELETE'])
+  def delete_question(question_id):
+    question_to_delete = Question.query.filter_by(id=question_id).first()
+    question_to_delete.delete()
+    return jsonify({
+      'success' :True,
+      'deleted' : question_id,
+    })
 
   '''
   @TODO: 
