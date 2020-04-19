@@ -65,7 +65,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['categories'])
         self.assertTrue(data['questions'])
-        # If you want to run the below test, comment out the test_delete_question(self) function since it deletes the entries and hence will result in one less than expected value
+        # If you want to run the assertion below, comment out the test_delete_question(self) function since it deletes the entries and hence will result in one less than total number of remaining questions in the test db.
+
         # self.assertEqual(data['total_questions'], 18)
 
     def test_404_get_questions_invalid_page(self):
@@ -78,16 +79,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['error'], 404)
 
     #-------------------- Test delete question -------------------------#
-    # def test_delete_question(self):
-    #     res = self.client.delete('/questions/19')
-    #     data = json.loads(res.data)
+    def test_delete_question(self):
+        res = self.client.delete('/questions/19')
+        data = json.loads(res.data)
 
-    #     question = Question.query.filter_by(id=19).one_or_none()
+        question = Question.query.filter_by(id=19).one_or_none()
 
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data['deleted'], 19)
-    #     self.assertEqual(data['success'],True)
-    #     self.assertEqual(question, None)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['deleted'], 19)
+        self.assertEqual(data['success'],True)
+        self.assertEqual(question, None)
 
     def test_422_question_non_existent(self):
         res = self.client.delete('/questions/100')
@@ -153,12 +154,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         
     # #---------------------- Test Quiz Page ---------------------#
-    # def test_quiz_page(self):
-    #     res = self.client.post('/quizzes', json={'quiz_category': })
-    #     data = json.loads(res.data)
+    def test_quiz_page(self):
+        res = self.client.post('/quizzes', json={'previous_questions':[],'quiz_category': {'type': {'id' : 5, 'type': 'Entertainment'}, 'id': 4}})
+        data = json.loads(res.data)
 
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertTrue(data['question'], True)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['question'], True)
     
 
 # Make the tests conveniently executable
