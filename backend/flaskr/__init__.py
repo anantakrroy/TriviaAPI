@@ -73,6 +73,8 @@ def create_app(test_config=None):
     all_categories = Category.query.all()
     format_categories = [category.format() for category in all_categories]
 
+    print('Total ques >>>> ', len(all_questions))
+
     if len(format_questions) == 0:
       abort(404)
 
@@ -92,11 +94,14 @@ def create_app(test_config=None):
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     question_to_delete = Question.query.filter_by(id=question_id).first()
-    question_to_delete.delete()
-    return jsonify({
+    if question_to_delete:
+      question_to_delete.delete()
+      return jsonify({
       'success' :True,
       'deleted' : question_id,
-    })
+      })
+    else:
+      abort(422)
 
   '''
   @TODO: 
@@ -186,7 +191,44 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/play')
+  def quiz_category():
+    categories = Category.query.all()
+    format_categories = [category.format() for category in categories]
+    print('Play Quiz', format_categories)
+    return jsonify({
+      'categories' : format_categories
+    })
 
+  @app.route('/quizzes', methods=['POST'])
+  def play_quiz():
+    previous_questions = request.get_json().get('previous_questions')
+    quiz_category = request.get_json().get('quiz_category')
+    all_questions = Question.query.all()
+    format_all_questions = [question.format() for question in all_questions]
+    quiz_question = ""
+    print('Previous questions >>>> ', previous_questions)
+
+    if quiz_category['type'] == 'click':
+      for question in format_all_questions:
+        question = random.choice(format_all_questions)
+        if(question['id'] not in previous_questions):
+          quiz_question = question
+          print('Quiz question', quiz_question)
+      return jsonify({
+        'question' : quiz_question
+      })
+      
+    else:
+      category = quiz_category['type']['id']
+      for question in format_all_questions:
+        question = random.choice(format_all_questions)
+        if(question['category'] == category and question['id'] not in previous_questions):
+          quiz_question = question
+          print('Quiz question', quiz_question)
+      return jsonify({
+        'question' : quiz_question
+      })
   '''
   @TODO: 
   Create error handlers for all expected errors 
@@ -207,6 +249,14 @@ def create_app(test_config=None):
         'message' : 'Not processable',
         'success' : False
         }), 422
+
+  @app.errorhandler(500)
+  def internal_server_error(error):
+    return jsonify({
+      'error' : 500,
+      'message' : 'Internal server error',
+      'success' : False
+    })
   
   return app
 
