@@ -91,7 +91,7 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
-  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  @app.route('/questions/delete/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     question_to_delete = Question.query.filter_by(id=question_id).first()
     if question_to_delete:
@@ -155,7 +155,7 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  @app.route('/questions', methods=['POST'])
+  @app.route('/search', methods=['POST'])
   def search_question():
     search_query = request.get_json().get('searchTerm')
     filtered_ques = Question.query.filter(Question.question.ilike(f'%{search_query}%')).all()
@@ -231,10 +231,10 @@ def create_app(test_config=None):
     else :
       category = quiz_category['type']['id']
       for question in format_all_questions:
-          question = random.choice(format_all_questions)
-          if(question['category'] == category and question['id'] not in previous_questions):
-            quiz_question = question
-            print('Quiz question', quiz_question)
+        question = random.choice(format_all_questions)
+        if(question['category'] == category and question['id'] not in previous_questions):
+          quiz_question = question
+          print('Quiz question', quiz_question)
       return jsonify({
           'question' : quiz_question
       })
