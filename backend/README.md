@@ -67,8 +67,6 @@ One note before you delve into your tasks: for each endpoint you are expected to
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
 REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
 
 Endpoints
 GET '/categories'
@@ -76,17 +74,285 @@ GET ...
 POST ...
 DELETE ...
 
-GET '/categories'
+**GET '/categories'**
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
+- **Request Arguments:** None
+- **Returns:** An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
+```
 {'1' : "Science",
 '2' : "Art",
 '3' : "Geography",
 '4' : "History",
 '5' : "Entertainment",
 '6' : "Sports"}
+```
 
+**GET '/questions?page={number}'**
+- Fetches a dictionary showing all categories , all paginated questions defaulting to page 1 and total number of questions. *Optional - **number** is the page number*
+- **Request Arguments:** None 
+- **Response:**  An object with keys - categories,questions, current_category and total_questions. 
+```
+{
+  "categories": [
+    {
+      "id": 1,
+      "type": "Science"
+    },
+    {
+      "id": 2,
+      "type": "Art"
+    },
+    {
+      "id": 3,
+      "type": "Geography"
+    },
+    {
+      "id": 4,
+      "type": "History"
+    },
+    {
+      "id": 5,
+      "type": "Entertainment"
+    },
+    {
+      "id": 6,
+      "type": "Sports"
+    }
+  ],
+  "current_category": null,
+  "questions": [
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+    {
+      "answer": "Muhammad Ali",
+      "category": 4,
+      "difficulty": 1,
+      "id": 9,
+      "question": "What boxer's original name is Cassius Clay?"
+    },
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {
+      "answer": "Edward Scissorhands",
+      "category": 5,
+      "difficulty": 3,
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    },
+    {
+      "answer": "Brazil",
+      "category": 6,
+      "difficulty": 3,
+      "id": 10,
+      "question": "Which is the only team to play in every soccer World Cup tournament?"
+    },
+    {
+      "answer": "Uruguay",
+      "category": 6,
+      "difficulty": 4,
+      "id": 11,
+      "question": "Which country won the first ever soccer World Cup in 1930?"
+    },
+    {
+      "answer": "George Washington Carver",
+      "category": 4,
+      "difficulty": 2,
+      "id": 12,
+      "question": "Who invented Peanut Butter?"
+    },
+    {
+      "answer": "Lake Victoria",
+      "category": 3,
+      "difficulty": 2,
+      "id": 13,
+      "question": "What is the largest lake in Africa?"
+    },
+    {
+      "answer": "The Palace of Versailles",
+      "category": 3,
+      "difficulty": 3,
+      "id": 14,
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    }
+  ],
+  "total_questions": 19
+}
+```
+
+**GET '/categories/{id}/questions'**
+- Fetches a dictionary showing current selected category name , all questions from the selected category and total number of questions from selected category.
+- **Request Arguments:** Category id 
+- **Response:**  An object with keys - current_category,questions and total_questions. 
+```
+{
+  "currentCategory": "Geography",
+  "questions": [
+    {
+      "answer": "Lake Victoria",
+      "category": 3,
+      "difficulty": 2,
+      "id": 13,
+      "question": "What is the largest lake in Africa?"
+    },
+    {
+      "answer": "The Palace of Versailles",
+      "category": 3,
+      "difficulty": 3,
+      "id": 14,
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    },
+    {
+      "answer": "Agra",
+      "category": 3,
+      "difficulty": 2,
+      "id": 15,
+      "question": "The Taj Mahal is located in which Indian city?"
+    },
+    {
+      "answer": "Paris",
+      "category": 3,
+      "difficulty": 1,
+      "id": 32,
+      "question": "Where is the Eiffel Tower?"
+    }
+  ],
+  "totalQuestions": 4
+}
+```
+
+**GET '/add'**
+- Fetches a dictionary showing all categories to allow for selecting question category for creation of new question
+- **Request Arguments:** None 
+- **Response:**  An object with key categories
+
+**GET '/play'**
+- Fetches a dictionary showing all categories to allow for selecting question category for playing quiz
+- **Request Arguments:** None 
+- **Response:**  An object with key categories
+```
+{
+  "categories": [
+    {
+      "id": 1,
+      "type": "Science"
+    },
+    {
+      "id": 2,
+      "type": "Art"
+    },
+    {
+      "id": 3,
+      "type": "Geography"
+    },
+    {
+      "id": 4,
+      "type": "History"
+    },
+    {
+      "id": 5,
+      "type": "Entertainment"
+    },
+    {
+      "id": 6,
+      "type": "Sports"
+    }
+  ]
+}
+```
+
+**POST '/add'**
+- Add a new question to the database. Each question must contain a question, answer, valid category and valid difficulty value.
+- **Request Arguments:** question , answer , difficulty, category 
+- **Response:**  An object with keys - message and success
+```
+{
+  "message": "Question added successfully",
+  "success": true
+}
+```
+
+**POST '/search'**
+- Search questions containing the search term.
+- **Request Arguments:** searchTerm 
+- **Response:**  An object with keys - questions, total_questions, current_category and success
+```
+{
+  "currentCategory": null,
+  "questions": [
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+    {
+      "answer": "Edward Scissorhands",
+      "category": 5,
+      "difficulty": 3,
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    }
+  ],
+  "success": true,
+  "totalQuestions": 2
+}
+```
+
+**POST '/quizzes'**
+- Get a random question from selected category passed as a request argument.
+- **Request Arguments:** previous_questions and quiz_category
+```
+{
+	"previous_questions" : [],
+	"quiz_category": {
+		"type" : {
+			"id" : 5,
+			"type" : "Entertainment"
+		},
+		"id" : 4
+	}
+}
+```
+- **Response:**  An object with key - question
+```
+{
+  "question": {
+    "answer": "Apollo 13",
+    "category": 5,
+    "difficulty": 4,
+    "id": 2,
+    "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+  }
+}
+```
+
+**DELETE '/questions/delete/{id}'**
+- Delete question with id passed to query string.
+- **Request Arguments:** None 
+- **Response:**  An object with keys - deleted and success
+```
+{
+  "deleted": 9,
+  "success": true
+}
 ```
 
 
