@@ -143,8 +143,7 @@ def create_app(test_config=None):
         })
       else :
         abort(400)
-      
-    
+          
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -224,7 +223,8 @@ def create_app(test_config=None):
         question = random.choice(format_all_questions)
         if(question['id'] not in previous_questions):
           quiz_question = question
-          print('Quiz question', quiz_question)
+      if quiz_question == '':
+            abort(400)
       return jsonify({
         'question' : quiz_question
       }) 
@@ -234,7 +234,8 @@ def create_app(test_config=None):
         question = random.choice(format_all_questions)
         if(question['category'] == category and question['id'] not in previous_questions):
           quiz_question = question
-          print('Quiz question', quiz_question)
+      if quiz_question == '':
+            abort(400)
       return jsonify({
           'question' : quiz_question
       })
@@ -273,7 +274,7 @@ def create_app(test_config=None):
       'error' : 500,
       'message' : 'Internal server error',
       'success' : False
-    })
+    }) , 500
   
   return app
 
