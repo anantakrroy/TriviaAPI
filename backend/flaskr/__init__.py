@@ -133,12 +133,17 @@ def create_app(test_config=None):
       answer = request.get_json().get('answer')
       difficulty = request.get_json().get('difficulty')
       category = request.get_json().get('category')
-      new_quiz_entry = Question(question=question, answer=answer,difficulty=difficulty,category=category)
-      Question.insert(new_quiz_entry)
-      return jsonify({
-        'success' : True,
-        'message' : 'Question added successfully',
-      })
+
+      if question and answer and (difficulty and 1<=difficulty<=5) and (category and 1<=category<=6):
+        new_quiz_entry = Question(question=question, answer=answer,difficulty=difficulty,category=category)
+        Question.insert(new_quiz_entry)
+        return jsonify({
+          'success' : True,
+          'message' : 'Question added successfully',
+        })
+      else :
+        abort(400)
+      
     
   '''
   @TODO: 
@@ -158,7 +163,8 @@ def create_app(test_config=None):
     return jsonify({
       'questions' : questions,
       'totalQuestions' : len(questions),
-      'currentCategory' : None
+      'currentCategory' : None,
+      'success' : True
     })
   '''
   @TODO: 
@@ -170,15 +176,18 @@ def create_app(test_config=None):
   '''
   @app.route('/categories/<int:category_id>/questions')
   def questions_by_category(category_id):
-    question_category = category_id + 1
-    curr_category = Category.query.filter_by(id=question_category).first().type
-    questions_of_category = Question.query.filter_by(category=question_category).all()
-    questions = [question.format() for question in questions_of_category]
-    return jsonify({
-      'questions' : questions,
-      'totalQuestions' : len(questions),
-      'currentCategory' : curr_category
-    })
+    if 0 <= category_id < 6:
+      question_category = category_id + 1
+      curr_category = Category.query.filter_by(id=question_category).first().type
+      questions_of_category = Question.query.filter_by(category=question_category).all()
+      questions = [question.format() for question in questions_of_category]
+      return jsonify({
+        'questions' : questions,
+        'totalQuestions' : len(questions),
+        'currentCategory' : curr_category
+      })
+    else:
+      abort(422)
 
   '''
   @TODO: 
@@ -207,33 +216,41 @@ def create_app(test_config=None):
     all_questions = Question.query.all()
     format_all_questions = [question.format() for question in all_questions]
     quiz_question = ""
-    print('Previous questions >>>> ', previous_questions)
 
-    if quiz_category['type'] == 'click':
-      for question in format_all_questions:
-        question = random.choice(format_all_questions)
-        if(question['id'] not in previous_questions):
-          quiz_question = question
-          print('Quiz question', quiz_question)
-      return jsonify({
-        'question' : quiz_question
-      })
-      
-    else:
-      category = quiz_category['type']['id']
-      for question in format_all_questions:
+    print('Quiz category >>>> ', quiz_category)
+
+    # if quiz_category['type'] == 'click':
+    #   for question in format_all_questions:
+    #     question = random.choice(format_all_questions)
+    #     if(question['id'] not in previous_questions):
+    #       quiz_question = question
+    #       print('Quiz question', quiz_question)
+    #   return jsonify({
+    #     'question' : quiz_question
+    #   }) 
+    # else :
+    category = quiz_category['type']['id']
+    for question in format_all_questions:
         question = random.choice(format_all_questions)
         if(question['category'] == category and question['id'] not in previous_questions):
           quiz_question = question
           print('Quiz question', quiz_question)
-      return jsonify({
+    return jsonify({
         'question' : quiz_question
-      })
+    })
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(400)
+  def bad_request_400(error):
+    return jsonify({
+      'error': 400,
+      'success': False,
+      'message':'Bad request'
+    }), 400
+
   @app.errorhandler(404)
   def not_found_404(error):
     return jsonify({
