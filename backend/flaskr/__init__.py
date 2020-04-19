@@ -219,16 +219,16 @@ def create_app(test_config=None):
 
     print('Quiz category >>>> ', quiz_category)
 
-    # if quiz_category['type'] == 'click':
-    #   for question in format_all_questions:
-    #     question = random.choice(format_all_questions)
-    #     if(question['id'] not in previous_questions):
-    #       quiz_question = question
-    #       print('Quiz question', quiz_question)
-    #   return jsonify({
-    #     'question' : quiz_question
-    #   }) 
-    # else :
+    if quiz_category['type'] == 'click':
+      for question in format_all_questions:
+        question = random.choice(format_all_questions)
+        if(question['id'] not in previous_questions):
+          quiz_question = question
+          print('Quiz question', quiz_question)
+      return jsonify({
+        'question' : quiz_question
+      }) 
+    else :
     category = quiz_category['type']['id']
     for question in format_all_questions:
         question = random.choice(format_all_questions)
