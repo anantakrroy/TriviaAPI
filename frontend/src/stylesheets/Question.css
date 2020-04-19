@@ -19,9 +19,12 @@
 
 .Question-holder {
   padding: 10px 20px;
-  border: 2px black solid;
+  border: none;
+  background-color: #0ccdc3;
+  box-shadow:0px 0px 17px 0px rgba(0,0,0,0.20);
   text-align: left;
-  margin: 7px;
+  margin: 12px;
+
 }
 
 .Question-status {
@@ -47,9 +50,9 @@
 .show-answer {
   width: 100px;
   margin-top: 5px;
-  background-color: dodgerblue;
+  background-color: #044688;
   color: white;
-  padding: 3px 5px;
+  padding: 5px;
   margin-left: 0px !important;
 }
 

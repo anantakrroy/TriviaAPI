@@ -17,6 +17,12 @@ This project uses NPM to manage software dependencies. NPM Relies on the package
 ```bash
 npm install
 ```
+**OR**
+
+```
+npm install
+```
+for Windows
 
 >_tip_: **npm i** is shorthand for **npm install**
 
@@ -31,6 +37,11 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser. T
 ```bash
 npm start
 ```
+**OR**
+```
+npm start
+```
+for Windows
 
 ## Request Formatting
 
