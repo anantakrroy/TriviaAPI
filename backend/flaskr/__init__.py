@@ -229,15 +229,15 @@ def create_app(test_config=None):
         'question' : quiz_question
       }) 
     else :
-    category = quiz_category['type']['id']
-    for question in format_all_questions:
-        question = random.choice(format_all_questions)
-        if(question['category'] == category and question['id'] not in previous_questions):
-          quiz_question = question
-          print('Quiz question', quiz_question)
-    return jsonify({
-        'question' : quiz_question
-    })
+      category = quiz_category['type']['id']
+      for question in format_all_questions:
+          question = random.choice(format_all_questions)
+          if(question['category'] == category and question['id'] not in previous_questions):
+            quiz_question = question
+            print('Quiz question', quiz_question)
+      return jsonify({
+          'question' : quiz_question
+      })
   '''
   @TODO: 
   Create error handlers for all expected errors 
